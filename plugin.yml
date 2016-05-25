@@ -1,4 +1,4 @@
 ﻿name: LibItemShow
 main: com.fyxridd.lib.show.item.ShowPlugin
 version: 0.1.0
-depend: [LibCore, LibFunc]
+depend: [LibCore, LibFunc, LibSpeed]
