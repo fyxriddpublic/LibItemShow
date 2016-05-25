@@ -8,6 +8,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class Info {
     //界面ID
@@ -22,7 +23,8 @@ public class Info {
     private OptionClickEventHandler handler;
     //true表示当没人查看此界面时删除此界面
     private boolean emptyDestroy;
-    private HashMap<Player, Inventory> invHash;
+    private Map<Player, Inventory> invs;
+
     public Info(int id, String name, int size, boolean emptyDestroy, OptionClickEventHandler handler) {
         super();
         this.id = id;
@@ -31,7 +33,7 @@ public class Info {
         this.emptySlots = size;
         this.emptyDestroy = emptyDestroy;
         this.handler = handler;
-        this.invHash = new HashMap<>();
+        this.invs = new HashMap<>();
     }
     public int getId() {
         return id;
@@ -57,7 +59,7 @@ public class Info {
      * @return null表示没有
      */
     public Inventory getInv(Player p) {
-        return invHash.get(p);
+        return invs.get(p);
     }
 
     public int getEmptySlots() {
@@ -77,14 +79,14 @@ public class Info {
             if (is == null) emptySlots --;
         }
         inv.setItem(slot, is);
-        for (Inventory inv:invHash.values()) inv.setItem(slot, is);
+        for (Inventory inv: invs.values()) inv.setItem(slot, is);
     }
 
     /**
      * 更新所有查看此界面的玩家背包
      */
     public void update() {
-        for (Player p:invHash.keySet()) {
+        for (Player p: invs.keySet()) {
             try {
                 p.updateInventory();
             } catch (Exception e) {
@@ -97,7 +99,7 @@ public class Info {
      * 关闭所有正查看此界面的玩家界面
      */
     public void closeAll() {
-        for (Player p:invHash.keySet()) {
+        for (Player p: invs.keySet()) {
             p.closeInventory();
         }
     }
@@ -124,8 +126,8 @@ public class Info {
      * @param p 玩家,不为null
      */
     public void removePlayer(Player p) {
-        invHash.remove(p);
-        if (emptyDestroy && invHash.isEmpty()) ShowPlugin.instance.getShowManager().unregister(this);
+        invs.remove(p);
+        if (emptyDestroy && invs.isEmpty()) ShowPlugin.instance.getShowManager().unregister(this);
     }
 
     /**
@@ -139,7 +141,7 @@ public class Info {
         if (handle != null) size += 9;
         if (title == null) title = inv.getTitle();
         Inventory result = Bukkit.createInventory(p, size, title);
-        invHash.put(p, result);
+        invs.put(p, result);
         //设置界面
         if (handle != null) {
             for (int i=0;i<size-9;i++) result.setItem(i, inv.getItem(i));

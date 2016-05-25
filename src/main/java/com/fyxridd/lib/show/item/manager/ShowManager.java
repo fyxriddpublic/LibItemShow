@@ -28,17 +28,17 @@ import java.util.Map;
  */
 public class ShowManager {
     private static final String ITEM = "item";
-    private static final String SHORT_DEFAULT = "im_default";
+    private static final String SHORT_DEFAULT = "is_default";
 
     //计数器
-    private int id = 1;
+    private static int id = 1;
 
     private ShowConfig showConfig;
 
     //界面ID 界面
-    private Map<Integer, Info> infoHash = new HashMap<>();
+    private Map<Integer, Info> infos = new HashMap<>();
     //玩家 正查看的界面
-    private Map<Player, Info> playerHash = new HashMap<>();
+    private Map<Player, Info> players = new HashMap<>();
 
     public ShowManager() {
         //添加配置监听
@@ -59,7 +59,7 @@ public class ShowManager {
                     final InventoryClickEvent event = (InventoryClickEvent) e;
                     if (event.getWhoClicked() instanceof Player) {
                         final Player p = (Player) event.getWhoClicked();
-                        final Info info = playerHash.get(p);
+                        final Info info = players.get(p);
                         if (info != null) {
                             event.setCancelled(true);
                             //速度检测
@@ -81,7 +81,7 @@ public class ShowManager {
                                             OptionClickEvent optionClickEvent = new OptionClickEvent(p, info, slot, event.isLeftClick(), event.isRightClick(), event.isShiftClick());
                                             info.getHandler().onOptionClick(optionClickEvent);
                                             if (optionClickEvent.isWillClose()) {
-                                                Info currentSee = playerHash.get(p);
+                                                Info currentSee = players.get(p);
                                                 if (currentSee != null && currentSee.equals(info)) p.closeInventory();
                                             }
                                         }
@@ -99,10 +99,10 @@ public class ShowManager {
                     InventoryCloseEvent event = (InventoryCloseEvent) e;
                     if (event.getPlayer() instanceof Player) {
                         Player p = (Player) event.getPlayer();
-                        Info info = playerHash.get(p);
+                        Info info = players.get(p);
                         if (info != null) {
                             info.removePlayer(p);
-                            playerHash.remove(p);
+                            players.remove(p);
                         }
                     }
                 }
@@ -111,7 +111,7 @@ public class ShowManager {
     }
 
     /**
-     * @see com.fyxridd.lib.iconmenu.api.IconMenuApi#register(String, int, boolean, OptionClickEventHandler)
+     * @see com.fyxridd.lib.show.item.api.ShowApi#register(String, int, boolean, OptionClickEventHandler)
      */
     public Info register(String name, int size, boolean emptyDestroy, OptionClickEventHandler handler) {
         if (name == null) name = "";
@@ -122,22 +122,22 @@ public class ShowManager {
 
         int id = getNextId();
         Info info = new Info(id, name, size, emptyDestroy, handler);
-        infoHash.put(id, info);
+        infos.put(id, info);
         return info;
     }
 
     /**
-     * @see com.fyxridd.lib.iconmenu.api.IconMenuApi#unregister(Info)
+     * @see com.fyxridd.lib.show.item.api.ShowApi#unregister(Info)
      */
     public void unregister(Info info) {
         if (info == null) return;
 
         info.closeAll();
-        infoHash.remove(info.getId());
+        infos.remove(info.getId());
     }
 
     /**
-     * @see com.fyxridd.lib.iconmenu.api.IconMenuApi#open(Player, Info, String, Inventory)
+     * @see com.fyxridd.lib.show.item.api.ShowApi#open(Player, Info, String, Inventory)
      */
     public void open(Player p, Info info, String title, Inventory handle) {
         if (p == null || info == null) return;
@@ -145,19 +145,19 @@ public class ShowManager {
         //尝试关闭背包
         p.closeInventory();
         //关闭背包成功
-        playerHash.put(p, info);
+        players.put(p, info);
         info.open(p, title, handle);
     }
 
     public Info getInfo(int id) {
-        return infoHash.get(id);
+        return infos.get(id);
     }
 
     /**
      * 获取下个可用ID
      * @return 下个可用ID
      */
-    private int getNextId() {
+    private static int getNextId() {
         return id ++;
     }
 }
