@@ -10,7 +10,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 @Path("confirm")
 public class ConfirmConfig {
-    private class ItemConverter implements ConfigConvert.ConfigConverter<ItemStack> {
+    private static class ItemConverter implements ConfigConvert.ConfigConverter<ItemStack> {
         @Override
         public ItemStack convert(String plugin, ConfigurationSection config) throws Exception {
             int id, smallId;
